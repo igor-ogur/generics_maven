@@ -1,12 +1,25 @@
 package com.goit.generics;
 
-public class Runner {
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class Runner{
+
+    private TaskProvider<Integer> taskProvider;
+    private ExecutorFactory executorFactory;
+
     public static void main(String[] args) {
-        SerialExecutor<Integer> executor = new SerialExecutor<>();
-        executor.addTask(new AddTask(1, -2));
-        executor.addTask(new AddTask(1, 2), result -> result > 0);
-        executor.addTask(new AddTask(1, -2), result -> result > 0);
-        executor.addTask(new AddTask(Integer.MAX_VALUE, 1), result -> result > 0);
+        ApplicationContext applicationContext = new ClassPathXmlApplicationContext("application-context.xml");
+        Runner runner = applicationContext.getBean("runner", Runner.class);
+        runner.execute();
+        runner.execute();
+    }
+
+    private void execute() {
+        Executor<Integer> executor = executorFactory.getIntegerExecutor();
+        taskProvider.getAllTasks().forEach(executor::addTask);
         executor.execute();
 
         System.out.println("Valid results:");
@@ -15,24 +28,11 @@ public class Runner {
         executor.getInvalidResults().forEach(System.out::println);
     }
 
-    private static class AddTask implements Task<Integer>{
-        private int value1;
-        private int value2;
-        private int result;
+    public void setTaskProvider(TaskProvider<Integer> taskProvider) {
+        this.taskProvider = taskProvider;
+    }
 
-        public AddTask(int value1, int value2) {
-            this.value1 = value1;
-            this.value2 = value2;
-        }
-
-        @Override
-        public void execute() {
-            result = value1 + value2;
-        }
-
-        @Override
-        public Integer getResult() {
-            return result;
-        }
+    public void setExecutorFactory(ExecutorFactory executorFactory) {
+        this.executorFactory = executorFactory;
     }
 }

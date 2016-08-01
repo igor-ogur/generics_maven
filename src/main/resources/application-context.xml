@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="runner" class="com.goit.generics.Runner">
+        <property name="taskProvider" ref="taskProvider"/>
+        <property name="executorFactory" ref="executorFactory"/>
+    </bean>
+
+    <bean id="taskProvider" class="com.goit.generics.IntegerTaskProvider" init-method="init"/>
+    <bean id="serialExecutor" class="com.goit.generics.SerialExecutor" scope="prototype"/>
+    <bean id="executorFactory" class="com.goit.generics.ExecutorFactory">
+        <lookup-method name="getIntegerExecutor" bean="serialExecutor"/>
+    </bean>
+</beans>
